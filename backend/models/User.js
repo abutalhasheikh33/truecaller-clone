@@ -10,21 +10,27 @@ const userSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     password: {
         type: String,
         required: true
     },
     city: String,
-    country: String
+    country: String,
+    personalContacts:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"List"
+    }
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {  
     if (!this.isModified('password')) {
       return next();
     }
