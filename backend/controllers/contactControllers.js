@@ -170,3 +170,57 @@ exports.findContacts = catchAsync(async (req, res) => {
     phoneNumberResults: phoneNumberResults,
   });
 });
+
+
+
+// otp generator
+const sendOtp = catchAsync(async (req, res) => {
+
+      // fetch email
+      const { email } = req.body
+
+      // check if user is already exits
+      const checkUserPresent = await User.findOne({ email })
+
+      // if user already exit , return response
+      if (checkUserPresent) {
+          return next(new AppError("User already registered",401));
+      }
+
+      // generate otp
+      let otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          lowerCaseAlphabets: false,
+          specialChars: false
+      });
+      console.log(`generated otp are  : - > ${otp}`);
+
+      // check unique otp or not
+      let result = await Otp.findOne({ otp: otp })
+      while (result) {
+          otp = otpGenerator.generate(6, {
+              upperCaseAlphabets: false,
+              lowerCaseAlphabets: false,
+              specialChars: false
+          });
+          result = await Otp.findOne({ otp: otp })
+      }
+      const otpPayload = { email, otp }
+
+      // create an entry in db
+      const otpBody = await Otp.create(otpPayload)
+
+      if(!otpBody){
+        next(new AppError("Some error occured while generating the otp"))
+      }
+
+      // return success response
+      return res.status(200).json({
+          success: true,
+          message: "otp sent successfully",
+          data: otpBody
+      })
+
+
+    
+})

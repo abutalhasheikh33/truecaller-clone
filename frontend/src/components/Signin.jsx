@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
 function Signin() {
     const [formData, setFormData] = useState({
@@ -14,14 +17,28 @@ function Signin() {
         }));
     };
 
+    const navigate = useNavigate()
+
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission logic here
+        axios.post('http://localhost:5000/api/v1/auth/login', formData)
+            .then((res) => {
+                localStorage.setItem("userToken", res.data.token);
+                navigate('/contacts');
+                console.log(res.data)
+                toast.success('Login successful');
+            })
+            .catch((err) => {
+                console.log(err)
+                toast.error(err.response.data.message);
+            });
         console.log(formData);
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+
             <div className="max-w-md w-full px-6 py-8 bg-white dark:bg-gray-800 shadow-md rounded-lg">
                 <h2 className="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Sign In</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -30,7 +47,6 @@ function Signin() {
                             Email address
                         </label>
                         <input
-                            autoComplete="email"
                             id="email"
                             name="email"
                             type="email"
@@ -46,11 +62,9 @@ function Signin() {
                             Password
                         </label>
                         <input
-                            autoComplete="current-password"
-                            id="password"
                             name="password"
                             type="password"
-                            placeholder="********"
+                            placeholder="**********************"
                             value={formData.password}
                             onChange={handleChange}
                             required
@@ -68,9 +82,9 @@ function Signin() {
                 </form>
                 <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     Don't have an account?{' '}
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                    <Link to='/' className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                         Sign up here
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

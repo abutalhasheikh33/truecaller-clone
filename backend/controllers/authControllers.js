@@ -3,20 +3,42 @@ const verifyPassword = require("../utils/authUtils/verifyPassword");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
+const otpGenerator = require('otp-generator')
 const runRedisServer = require("../redisConn");
 const jwt = require("jsonwebtoken");
 const extractBearerToken = require('../utils/authUtils/extractBearerToken')
 const addToBlacklist = require('../utils/authUtils/blacklistToken')
 const { promisify } = require("util");
 const Global = require("../models/Global");
-const List = require('../models/List')
+const List = require('../models/List');
+const Otp = require("../models/Otp");
+const mailSender = require('../utils/mailUtils/mailSender')
 exports.register = catchAsync(async (req, res, next) => {
-    const { phoneNumber, email, password, name, city,country } = req.body;
+    const { phoneNumber, email, password, name, city,country,otp } = req.body;
     
   
     // Validate that all required fields are provided
-    if (!phoneNumber|| !name || !email || !password) {
+    if (!phoneNumber|| !name || !email || !password || !otp ) {
       return next(new AppError("Fill every field", 404));
+    }
+
+    const exitingUser = await User.findOne({ email })
+    if (exitingUser) {
+        return res.status(400).json({
+            success: false,
+            message: "user already registered"
+        })
+    }
+
+       // find most recent otp stored for the user 
+       const recentOtp = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1)
+       console.log(`resentOtp : -> ${recentOtp}`);
+       console.log(`${email}`);
+      // validate otp 
+      if (recentOtp.length === 0) {
+        return next(new AppError("Otp not found",400))
+    } else if (otp != recentOtp[0].otp) {
+        return next(new AppError("Invalid Otp",400))
     }
 
     // Check if the contact already exists globally
@@ -27,10 +49,7 @@ exports.register = catchAsync(async (req, res, next) => {
       if (!globalContact) {
           globalContact = await Global.create({ name, phoneNumber });
       }
-      else{
-        if(globalContact.name[0] === '$Unknown'){  await Global.findByIdAndUpdate(globalContact._id,{ name:[name] }); }
-        else { await Global.findByIdAndUpdate(globalContact._id,{ $push: { name } }); }
-      }
+     
     
   
     // Create a new user
@@ -42,10 +61,17 @@ exports.register = catchAsync(async (req, res, next) => {
       city,
       country
     });
+
+    // Create a contact list for the registered contact
     
     const newList = await List.create({userId:newRegister._id,list:[]});
     newRegister.personalContacts = newList._id;
     newRegister.save();
+
+    // after contact registered also create a copy in global db 
+    if(globalContact.name[0] === '$Unknown'){  await Global.findByIdAndUpdate(globalContact._id,{ name:[name] }); }
+    else { await Global.findByIdAndUpdate(globalContact._id,{ $push: { name } }); }
+
     // Create a JWT token for the new company
     const payload = {
       email: newRegister.email,
@@ -125,7 +151,7 @@ exports.verifyToken = catchAsync(async (req, res, next) => {
 
   // Check if token is in Redis blacklist
   const find = await redisClient.get(token);
-
+  await redisClient.quit();
   // If token is in the blacklist, send an error response
   if (find) {
     return next(new AppError("Token invalid"));
@@ -154,10 +180,60 @@ exports.logout = catchAsync(async (req, res, next) => {
 
   // Add token to Redis blacklist
   await addToBlacklist(redisClient, token);
-
+  await redisClient.quit();
   // Send response with success message
   res.status(200).json({
     message: "Logged out successfully",
   });
 
 });
+
+
+// otp generator
+exports.sendOtp = catchAsync( async (req, res,next) => {
+ 
+      // fetch email
+      const { email } = req.body
+
+      // check if user is already exits
+      const checkUserPresent = await User.findOne({ email })
+
+      // if user already exit , return response
+      if (checkUserPresent) {
+          return next(new AppError("User already registered",401));
+      }
+
+      // generate otp
+      let otp = otpGenerator.generate(6, {
+          upperCaseAlphabets: false,
+          lowerCaseAlphabets: false,
+          specialChars: false
+      });
+      console.log(`generated otp are  : - > ${otp}`);
+
+      // check unique otp or not
+      let result = await Otp.findOne({ otp: otp })
+      while (result) {
+          otp = otpGenerator.generate(6, {
+              upperCaseAlphabets: false,
+              lowerCaseAlphabets: false,
+              specialChars: false
+          });
+          result = await Otp.findOne({ otp: otp })
+      }
+      const otpPayload = { email, otp }
+
+      // create an entry in db
+      const otpBody = await Otp.create(otpPayload)
+
+      // return success response
+      return res.status(200).json({
+          success: true,
+          message: "otp sent successfully",
+          data: otpBody
+      })
+  
+
+    
+  
+})

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function Signup() {
     const [formData, setFormData] = useState({
         name: '',
-        phone: '',
+        phoneNumber: '',
         password: '',
         email: '',
         city: '',
@@ -21,6 +24,15 @@ function Signup() {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission logic here
+        axios.post('http://localhost:5000/api/v1/auth/register', formData)
+            .then((res) => {
+                toast.success('Registration successful');
+                console.log(res.data)
+            })
+            .catch((err) => {
+                console.log(err)
+                toast.error(err.response.data.message);
+            });
         console.log(formData);
     };
 
@@ -38,7 +50,7 @@ function Signup() {
                             // id="name"
                             name="name"
                             type="text"
-                            placeholder="John The Don"
+                            placeholder="Full Name"
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -50,10 +62,8 @@ function Signup() {
                             Phone Number
                         </label>
                         <input
-                            autoComplete="tel"
-                            // id="phone"
-                            name="phone"
-                            type="tel"
+                            name="phoneNumber"
+                            type="number"
                             placeholder="+91 1234567890"
                             value={formData.phone}
                             onChange={handleChange}
@@ -67,10 +77,9 @@ function Signup() {
                         </label>
                         <input
                             autoComplete="current-password"
-                            // id="password"
                             name="password"
                             type="password"
-                            placeholder="********"
+                            placeholder="**********************"
                             value={formData.password}
                             onChange={handleChange}
                             required
@@ -136,9 +145,9 @@ function Signup() {
                 </form>
                 <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
                     Already have an account?{' '}
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                    <Link to="/signin" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
                         Sign in here
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>
