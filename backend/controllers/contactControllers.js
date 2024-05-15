@@ -21,7 +21,7 @@ exports.createContact = catchAsync(async (req, res, next) => {
 
   // Find the logged-in user
   const user = await User.findById(req.user.id).populate("personalContacts");
-  console.log(user);
+  
   // Check if the contact already exists in the user's personal contacts
   const existingContact =
     user.personalContacts.list &&
@@ -51,7 +51,7 @@ exports.createContact = catchAsync(async (req, res, next) => {
 exports.listContacts = catchAsync(async (req, res) => {
   // Find the logged-in user
   const user = await User.findById(req.user.id).populate("personalContacts");
-  console.log(user);
+
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
@@ -137,7 +137,7 @@ exports.findContacts = catchAsync(async (req, res) => {
   // Check if the searched name exists in the user's contact list
   let contactByName = null;
   if (user) {
-    console.log(query)
+   
     contactByName = user.personalContacts.list.find(
       (contact) => contact.name.toLowerCase() === query.toLowerCase()
     );
@@ -164,6 +164,8 @@ const partialNameResults = await Global.find({
   name: { $elemMatch: { $regex: query, $options: "i", $ne: `^${query}$` } }, // Names containing the query but not exactly matching it for any element in the array
 }).select("name phoneNumber spamLikelihoodPercentage");
 
+
+
 // Here you can apply logic to ensure unique documents based on the phoneNumber
 // Assuming nameResults and partialNameResults are arrays of documents
 const uniqueNameResults = []; // Array to hold unique documents based on phoneNumber
@@ -183,7 +185,13 @@ nameResults.forEach(addUniqueDocument);
 // Add unique documents from partialNameResults
 partialNameResults.forEach(addUniqueDocument);
 
-
+// Sort the array of objects based on the 'name' parameter
+uniqueNameResults.sort((a, b) => {
+    const nameA = Array.isArray(a.name)?a.name[0]:a.name;
+    const nameB = Array.isArray(b.name)?b.name[0]:b.name;
+  // Use localeCompare for string comparison (case-insensitive)
+  return nameA.localeCompare(nameB);
+});
 
   // Search by phone number
   const phoneNumberResults = await Global.find({

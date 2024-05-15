@@ -17,6 +17,7 @@ function ContactsList() {
         })
             .then((res) => {
                 console.log(res.data)
+              
                 setContacts(res.data.personalContacts)
             })
             .catch((err) => console.log(err));

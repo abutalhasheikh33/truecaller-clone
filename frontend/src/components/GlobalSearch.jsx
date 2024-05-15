@@ -25,8 +25,9 @@ function GlobalSearch() {
                         }
                     )
                     .then((res) => {
-                        console.log("mkc", res.data)
+                        console.log(res.data)
                         const concat = (res.data.phoneNumberResults.concat(res.data.nameResults))
+                        concat.sort()
                         setContacts(concat);
                         console.log('concat', concat);
                         if (concat.length === 0) {
