@@ -145,29 +145,54 @@ exports.findContacts = catchAsync(async (req, res) => {
 
   // If the searched name exists in the user's contact list, prioritize showing that contact
   if (contactByName) {
-    return res.json({
+    return res.status(200).json({
       nameResults: [
         { name: contactByName.name, phoneNumber: contactByName.phoneNumber },
       ],
       phoneNumberResults: [],
     });
   }
-  // Search by name
-  const nameResults = await Global.find({
-    name: { $regex: `^${query}`, $options: "i" }, // Names starting with the query
-  }).select("name phoneNumber spamLikelihoodPercentage");
 
-  const partialNameResults = await Global.find({
-    name: { $regex: query, $options: "i", $ne: query }, // Names containing the query but not starting with it
-  }).select("name phoneNumber spamLikelihoodPercentage");
+
+
+// Search by name
+const nameResults = await Global.find({
+  name: { $elemMatch: { $regex: `^${query}$`, $options: "i" } }, // Exact name match for any element in the array
+}).select("name phoneNumber spamLikelihoodPercentage");
+
+const partialNameResults = await Global.find({
+  name: { $elemMatch: { $regex: query, $options: "i", $ne: `^${query}$` } }, // Names containing the query but not exactly matching it for any element in the array
+}).select("name phoneNumber spamLikelihoodPercentage");
+
+// Here you can apply logic to ensure unique documents based on the phoneNumber
+// Assuming nameResults and partialNameResults are arrays of documents
+const uniqueNameResults = []; // Array to hold unique documents based on phoneNumber
+const uniquePhoneNumbers = new Set(); // Set to track unique phone numbers
+
+// Function to add a document to the uniqueNameResults array only if its phoneNumber is unique
+const addUniqueDocument = (document) => {
+  if (!uniquePhoneNumbers.has(document.phoneNumber)) {
+    uniqueNameResults.push(document);
+    uniquePhoneNumbers.add(document.phoneNumber);
+  }
+};
+
+// Add unique documents from nameResults
+nameResults.forEach(addUniqueDocument);
+
+// Add unique documents from partialNameResults
+partialNameResults.forEach(addUniqueDocument);
+
+
 
   // Search by phone number
   const phoneNumberResults = await Global.find({
     phoneNumber: { $regex: query, $options: "i" },
   }).select("name phoneNumber spamLikelihoodPercentage");
 
-  res.json({
-    nameResults: nameResults.concat(partialNameResults),
+
+  res.status(200).json({
+    nameResults: uniqueNameResults,
     phoneNumberResults: phoneNumberResults,
   });
 });
