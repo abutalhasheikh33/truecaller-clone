@@ -76,7 +76,8 @@ exports.register = catchAsync(async (req, res, next) => {
     const payload = {
       email: newRegister.email,
       id: newRegister._id,
-      name: newRegister.name
+      name: newRegister.name,
+      phoneNumber: newRegister.phoneNumber
     };
     const token = await signToken(payload);
   
@@ -119,6 +120,7 @@ exports.register = catchAsync(async (req, res, next) => {
       email: document.email,
       id: document._id,
       name: document.name,
+      phoneNumber: document.phoneNumber
       
     };
     const token = await signToken(payload);

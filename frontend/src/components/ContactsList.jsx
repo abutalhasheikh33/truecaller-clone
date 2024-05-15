@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Nav from './Nav';
 import toast from 'react-hot-toast';
+import GlobalSearch from './GlobalSearch';
+import ContactModal from './ContactModal'; // Import the ContactModal component
 
 function ContactsList() {
     const [contacts, setContacts] = useState([]);
@@ -109,18 +110,9 @@ function ContactsList() {
                 </div>
             </div>
             {selectedContact && (
-                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-8 space-y-2 rounded-lg shadow-md">
-                        <h2 className="text-xl font-bold mb-4">{selectedContact.name}</h2>
-                        <p className="text-gray-600">Phone No: {selectedContact.phoneNumber}</p>
-                        <p className="text-gray-600">Country: India</p>
-                        <p className="text-gray-600 pb-6">City: Mumbai</p>
-                        <button onClick={closeModal} className=" px-4 py-2 bg-indigo-600 text-white rounded-md">
-                            Close
-                        </button>
-                    </div>
-                </div>
+                <ContactModal contact={selectedContact} closeModal={closeModal} />
             )}
+            <GlobalSearch />
         </div>
     );
 }

@@ -137,6 +137,7 @@ exports.findContacts = catchAsync(async (req, res) => {
   // Check if the searched name exists in the user's contact list
   let contactByName = null;
   if (user) {
+    console.log(query)
     contactByName = user.personalContacts.list.find(
       (contact) => contact.name.toLowerCase() === query.toLowerCase()
     );
@@ -172,55 +173,43 @@ exports.findContacts = catchAsync(async (req, res) => {
 });
 
 
+exports.showDetails = catchAsync(async (req,res,next)=>{
+        const {phoneNumber} = req.body;
+        // Search for the phone number in the Global collection
+        const globalEntry = await Global.findOne({ phoneNumber });
+        if(!globalEntry){
+          return next(new AppError("Phone Number not found",404))
+        }
 
-// otp generator
-const sendOtp = catchAsync(async (req, res) => {
+        if (globalEntry) {
+          // If found, retrieve the spam likelihood percentage
+          const spamLikelihood = globalEntry.spamLikelihoodPercentage;
 
-      // fetch email
-      const { email } = req.body
+          // Check if the user is registered and fetch additional information
+          const user = await User.findOne({ phoneNumber });
+          if (!user) {
+            return res.status(200).json({
+              name:globalEntry.name[0],
+              phoneNumber:globalEntry.phoneNumber,
+              spamLikelihood,
+            })
+          }else{
+            const { city, country, email } = user;
 
-      // check if user is already exits
-      const checkUserPresent = await User.findOne({ email })
+                // Check if the user is in the contact list of the searcher (pseudo-code)
+                 // Check if the user is in the contact list of the searcher
+                const isUserInContactList = await List.exists({ userId: user._id, 'list.phoneNumber': req.user.phoneNumber });
 
-      // if user already exit , return response
-      if (checkUserPresent) {
-          return next(new AppError("User already registered",401));
-      }
-
-      // generate otp
-      let otp = otpGenerator.generate(6, {
-          upperCaseAlphabets: false,
-          lowerCaseAlphabets: false,
-          specialChars: false
-      });
-      console.log(`generated otp are  : - > ${otp}`);
-
-      // check unique otp or not
-      let result = await Otp.findOne({ otp: otp })
-      while (result) {
-          otp = otpGenerator.generate(6, {
-              upperCaseAlphabets: false,
-              lowerCaseAlphabets: false,
-              specialChars: false
-          });
-          result = await Otp.findOne({ otp: otp })
-      }
-      const otpPayload = { email, otp }
-
-      // create an entry in db
-      const otpBody = await Otp.create(otpPayload)
-
-      if(!otpBody){
-        next(new AppError("Some error occured while generating the otp"))
-      }
-
-      // return success response
-      return res.status(200).json({
-          success: true,
-          message: "otp sent successfully",
-          data: otpBody
-      })
-
-
-    
+                // Assuming isUserInContactList is true if the user is in the contact list
+                if (isUserInContactList) {
+                  // If the user is in the contact list, return additional information (email)                 
+                  return res.status(200).json({ name:globalEntry.name[0],phoneNumber:globalEntry.phoneNumber,spamLikelihood, city, country, email })
+              } else {
+                  // If the user is not in the contact list, don't return the email
+                  return res.status(200).json({ name:globalEntry.name[0],phoneNumber:globalEntry.phoneNumber,spamLikelihood, city, country });
+              }
+                
+                
+          } 
+      }   
 })

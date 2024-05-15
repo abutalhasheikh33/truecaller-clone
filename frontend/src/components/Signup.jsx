@@ -101,7 +101,7 @@ function Signup() {
                             // id="email"
                             name="email"
                             type="email"
-                            placeholder="don@gmail.com"
+                            placeholder="user@gmail.com"
                             value={formData.email}
                             onChange={handleChange}
                             // required
