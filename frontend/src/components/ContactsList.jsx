@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import GlobalSearch from './GlobalSearch';
 import ContactModal from './ContactModal'; // Import the ContactModal component
+import MarkSpam from './MarkSpam';
 
 function ContactsList() {
     const [contacts, setContacts] = useState([]);
@@ -100,18 +101,20 @@ function ContactsList() {
                         ))}
                     </ul>
                 )}
-                <div className="mt-8">
+                <div className="mt-8 space-x-4">
                     <Link
                         to="/add"
                         className="px-4 py-2 bg-indigo-600 text-white rounded-md"
                     >
                         Add Contact
                     </Link>
+
                 </div>
             </div>
             {selectedContact && (
                 <ContactModal contact={selectedContact} closeModal={closeModal} />
             )}
+            <MarkSpam />
             <GlobalSearch />
         </div>
     );

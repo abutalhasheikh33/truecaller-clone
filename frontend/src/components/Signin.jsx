@@ -50,7 +50,7 @@ function Signin() {
                             id="email"
                             name="email"
                             type="email"
-                            placeholder="don@gmail.com"
+                            placeholder="Your Email Address"
                             value={formData.email}
                             onChange={handleChange}
                             required

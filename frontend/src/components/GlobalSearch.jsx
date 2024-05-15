@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios"; // Import Axios library
-import { debounce, set } from "lodash"; // Import debounce function from lodash
 import ContactModal from "./ContactModal";
+import toast from 'react-hot-toast';
 
 function GlobalSearch() {
     const [selectedContact, setSelectedContact] = useState(null);
@@ -25,9 +25,21 @@ function GlobalSearch() {
                         }
                     )
                     .then((res) => {
-                        console.log(res.data);
+
+                        const concat = (res.data.phoneNumberResults.concat(res.data.nameResults))
+                        setContacts(concat);
+                        console.log('concat', concat);
+                        if (concat.length === 0) {
+                            toast.error('No results found');
+                        } else {
+
+                            toast.success('Search successful');
+                        }
                     })
-                    .catch((err) => console.log(err));
+                    .catch((err) => {
+                        console.log(err)
+                        toast.error(err.response.data.message);
+                    });
             }
         }, 1000);
 
@@ -53,14 +65,9 @@ function GlobalSearch() {
         setSelectedContact(null);
     };
 
-    const filteredContacts = contacts.filter(
-        (contact) =>
-            contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            contact.phoneNumber.includes(searchTerm)
-    );
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className=" bg-gray-100 dark:bg-gray-900">
             <div className="max-w-md mx-auto py-8 px-4">
                 <h2 className="text-3xl font-bold mb-4 text-center text-gray-800 dark:text-gray-200">
                     Global Contacts
@@ -73,9 +80,9 @@ function GlobalSearch() {
                     className="w-full px-3 py-2 rounded-md border-gray-300 focus:outline-none focus:border-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:focus:border-indigo-400 dark:text-gray-200"
                 />
                 <ul className="mt-4">
-                    {filteredContacts.map((contact) => (
+                    {contacts.map((contact, index) => (
                         <li
-                            key={contact.id}
+                            key={`${contact._id}-${index}`}
                             className="flex items-center justify-between py-2 border-b border-gray-300"
                         >
                             <div
@@ -83,7 +90,9 @@ function GlobalSearch() {
                                 className="cursor-pointer"
                             >
                                 <p className="text-lg font-medium text-gray-800 dark:text-gray-200">
-                                    {contact.name}
+                                    {/* {typeof contact.name === 'Array' ? contact.name : contact.name} */}
+                                    {/* {contact.name[0]} */}
+                                    {Array.isArray(contact.name) ? contact.name[0] : contact.name}
                                 </p>
                                 <p className="text-gray-600 dark:text-gray-400">
                                     {contact.phoneNumber}

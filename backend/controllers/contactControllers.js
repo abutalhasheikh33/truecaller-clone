@@ -26,7 +26,7 @@ exports.createContact = catchAsync(async (req, res, next) => {
   const existingContact =
     user.personalContacts.list &&
     user.personalContacts.list.find(
-      (contact) => contact.phoneNumber === phoneNumber
+      (contact) => (contact.phoneNumber === phoneNumber || contact.name === name)
     );
 
   // If the contact doesn't exist in the user's personal contacts, add it
@@ -173,43 +173,43 @@ exports.findContacts = catchAsync(async (req, res) => {
 });
 
 
-exports.showDetails = catchAsync(async (req,res,next)=>{
-        const {phoneNumber} = req.body;
-        // Search for the phone number in the Global collection
-        const globalEntry = await Global.findOne({ phoneNumber });
-        if(!globalEntry){
-          return next(new AppError("Phone Number not found",404))
-        }
+exports.showDetails = catchAsync(async (req, res, next) => {
+  const { phoneNumber } = req.body;
+  // Search for the phone number in the Global collection
+  const globalEntry = await Global.findOne({ phoneNumber });
+  if (!globalEntry) {
+    return next(new AppError("Phone Number not found", 404))
+  }
 
-        if (globalEntry) {
-          // If found, retrieve the spam likelihood percentage
-          const spamLikelihood = globalEntry.spamLikelihoodPercentage;
+  if (globalEntry) {
+    // If found, retrieve the spam likelihood percentage
+    const spamLikelihood = globalEntry.spamLikelihoodPercentage;
 
-          // Check if the user is registered and fetch additional information
-          const user = await User.findOne({ phoneNumber });
-          if (!user) {
-            return res.status(200).json({
-              name:globalEntry.name[0],
-              phoneNumber:globalEntry.phoneNumber,
-              spamLikelihood,
-            })
-          }else{
-            const { city, country, email } = user;
+    // Check if the user is registered and fetch additional information
+    const user = await User.findOne({ phoneNumber });
+    if (!user) {
+      return res.status(200).json({
+        name: globalEntry.name[0],
+        phoneNumber: globalEntry.phoneNumber,
+        spamLikelihood,
+      })
+    } else {
+      const { city, country, email } = user;
 
-                // Check if the user is in the contact list of the searcher (pseudo-code)
-                 // Check if the user is in the contact list of the searcher
-                const isUserInContactList = await List.exists({ userId: user._id, 'list.phoneNumber': req.user.phoneNumber });
+      // Check if the user is in the contact list of the searcher (pseudo-code)
+      // Check if the user is in the contact list of the searcher
+      const isUserInContactList = await List.exists({ userId: user._id, 'list.phoneNumber': req.user.phoneNumber });
 
-                // Assuming isUserInContactList is true if the user is in the contact list
-                if (isUserInContactList) {
-                  // If the user is in the contact list, return additional information (email)                 
-                  return res.status(200).json({ name:globalEntry.name[0],phoneNumber:globalEntry.phoneNumber,spamLikelihood, city, country, email })
-              } else {
-                  // If the user is not in the contact list, don't return the email
-                  return res.status(200).json({ name:globalEntry.name[0],phoneNumber:globalEntry.phoneNumber,spamLikelihood, city, country });
-              }
-                
-                
-          } 
-      }   
+      // Assuming isUserInContactList is true if the user is in the contact list
+      if (isUserInContactList) {
+        // If the user is in the contact list, return additional information (email)                 
+        return res.status(200).json({ name: globalEntry.name[0], phoneNumber: globalEntry.phoneNumber, spamLikelihood, city, country, email })
+      } else {
+        // If the user is not in the contact list, don't return the email
+        return res.status(200).json({ name: globalEntry.name[0], phoneNumber: globalEntry.phoneNumber, spamLikelihood, city, country });
+      }
+
+
+    }
+  }
 })

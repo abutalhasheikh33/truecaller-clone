@@ -82,15 +82,19 @@ function Signup() {
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Phone Number
                         </label>
-                        <input
-                            name="phoneNumber"
-                            type="number"
-                            placeholder="+91 1234567890"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            // required
-                            className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
-                        />
+                        <div className='flex items-center'>
+                            <span className='mt-1 p-2 block border-r-2 border-white rounded-l-md shadow-sm dark:bg-gray-700 dark:border-gray-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200'>+91</span>
+
+                            <input
+                                name="phoneNumber"
+                                type="number"
+                                placeholder="Your phone number"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                required
+                                className="mt-1 p-2 block w-full border-gray-300 rounded-r-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
+                            />
+                        </div>
                     </div>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -101,10 +105,10 @@ function Signup() {
                             // id="email"
                             name="email"
                             type="email"
-                            placeholder="user@gmail.com"
+                            placeholder="Tell us your email id"
                             value={formData.email}
                             onChange={handleChange}
-                            // required
+                            required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -116,10 +120,10 @@ function Signup() {
                             autoComplete="current-password"
                             name="password"
                             type="password"
-                            placeholder="**********************"
+                            placeholder="***************"
                             value={formData.password}
                             onChange={handleChange}
-                            // required
+                            required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -133,10 +137,10 @@ function Signup() {
                             // id="city"
                             name="city"
                             type="text"
-                            placeholder="Mumbai"
+                            placeholder="Your city name"
                             value={formData.city}
                             onChange={handleChange}
-                            // required
+                            required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -149,10 +153,10 @@ function Signup() {
                             id="country"
                             name="country"
                             type="text"
-                            placeholder="India"
+                            placeholder="Where are you from?"
                             value={formData.country}
                             onChange={handleChange}
-                            // required
+                            required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>

@@ -51,7 +51,7 @@ function OTPVerification() {
             console.log(response.data); // Log response data if needed
             toast.success('Registration successful'); // Display success message
             dispatch(setUser(updatedUser)); // Update Redux store with user details
-            navigate('/contacts'); // Navigate to contacts page
+            navigate('/signin'); // Navigate to contacts page
         } catch (error) {
             console.error('Registration failed:', error);
             toast.error(error.response.data.message); // Display error message
