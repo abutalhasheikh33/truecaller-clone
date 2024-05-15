@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Nav from './Nav';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useSelector, useDispatch } from 'react-redux';
+
+
 function AddContact() {
     const [formData, setFormData] = useState({
         name: '',
         phoneNumber: '',
     });
+
+    const userDetails = useSelector((state) => state.user.userDetails);
+
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -34,6 +41,7 @@ function AddContact() {
                 toast.error(err.response.data.message);
             });
         console.log(formData);
+        console.log("userDetails", userDetails)
     };
 
     return (
@@ -53,7 +61,7 @@ function AddContact() {
                                 placeholder="Full Name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                required
+                                // required
                                 className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                             />
                         </div>
@@ -73,7 +81,7 @@ function AddContact() {
                                     minLength={10}
                                     maxLength={10}
                                     pattern="[0-9]{10}"
-                                    required
+                                    // required
                                     className="mt-1 p-2 block w-full border-gray-300 rounded-r-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                                 />
 

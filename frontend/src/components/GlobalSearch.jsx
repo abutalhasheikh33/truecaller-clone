@@ -25,7 +25,7 @@ function GlobalSearch() {
                         }
                     )
                     .then((res) => {
-
+                        console.log("mkc", res.data)
                         const concat = (res.data.phoneNumberResults.concat(res.data.nameResults))
                         setContacts(concat);
                         console.log('concat', concat);
@@ -48,13 +48,36 @@ function GlobalSearch() {
         };
     }, [searchTerm]);
 
+
+    useEffect(() => {
+        if (searchTerm === "") {
+            setContacts([]);
+        }
+    }, [searchTerm]);
+
+
+
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
         // console.log(`Searching for ${searchTerm}`);
     };
 
-    const handleSpam = (id) => {
-        console.log(`Marked contact with ID ${id} as spam`);
+    const handleSpam = (phoneNumber) => {
+        axios.patch(
+            `http://localhost:5000/api/v1/contact/markSpam`,
+            {
+                phoneNumber: phoneNumber
+            },
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` }
+            }
+        )
+            .then((res) => {
+                console.log(res.data)
+                toast.success('Contact marked as spam');
+            })
+            .catch((err) => console.log(err));
+        console.log(phoneNumber);
     };
 
     const handleContactClick = (contact) => {
@@ -100,7 +123,7 @@ function GlobalSearch() {
                             </div>
                             <div>
                                 <button
-                                    onClick={() => handleSpam(contact.id)}
+                                    onClick={() => handleSpam(contact.phoneNumber)}
                                     className="px-3 py-1 bg-yellow-500 text-white rounded-md"
                                 >
                                     Mark as Spam

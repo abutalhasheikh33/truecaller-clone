@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser } from '../redux/Slices/userSlices';
+
 
 function Signin() {
     const [formData, setFormData] = useState({
@@ -26,8 +29,9 @@ function Signin() {
             .then((res) => {
                 localStorage.setItem("userToken", res.data.token);
                 navigate('/contacts');
-                console.log(res.data)
+                console.log(res.data.user)
                 toast.success('Login successful');
+                useDispatch(setUser(res.data.user));
             })
             .catch((err) => {
                 console.log(err)
