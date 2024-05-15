@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { setUser } from '../redux/Slices/userSlices';
+import { useDispatch } from 'react-redux';
 
 function Signup() {
     const [formData, setFormData] = useState({
@@ -13,6 +15,8 @@ function Signup() {
         country: '',
     });
 
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -21,19 +25,36 @@ function Signup() {
         }));
     };
 
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle form submission logic here
-        axios.post('http://localhost:5000/api/v1/auth/register', formData)
+        // axios.post('http://localhost:5000/api/v1/auth/register', formData)
+        //     .then((res) => {
+        //         toast.success('Registration successful');
+        //         console.log(res.data)
+        //     })
+        //     .catch((err) => {
+        //         console.log(err)
+        //         toast.error(err.response.data.message);
+        //     });
+        // console.log(formData);
+        const userEmail = formData.email;
+        axios.post('http://localhost:5000/api/v1/auth/sendOtp', {
+            email: userEmail,
+        })
             .then((res) => {
-                toast.success('Registration successful');
-                console.log(res.data)
+                console.log(res.data);
+                toast.success('OTP sent successfully');
             })
             .catch((err) => {
-                console.log(err)
+                console.log(err);
                 toast.error(err.response.data.message);
             });
-        console.log(formData);
+
+        dispatch(setUser(formData)); // Dispatching setUser action with form data
+        navigate('/verify');
     };
 
     return (
@@ -53,7 +74,7 @@ function Signup() {
                             placeholder="Full Name"
                             value={formData.name}
                             onChange={handleChange}
-                            required
+                            // required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -67,22 +88,7 @@ function Signup() {
                             placeholder="+91 1234567890"
                             value={formData.phone}
                             onChange={handleChange}
-                            required
-                            className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Password
-                        </label>
-                        <input
-                            autoComplete="current-password"
-                            name="password"
-                            type="password"
-                            placeholder="**********************"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
+                            // required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -98,10 +104,26 @@ function Signup() {
                             placeholder="don@gmail.com"
                             value={formData.email}
                             onChange={handleChange}
-                            required
+                            // required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Password
+                        </label>
+                        <input
+                            autoComplete="current-password"
+                            name="password"
+                            type="password"
+                            placeholder="**********************"
+                            value={formData.password}
+                            onChange={handleChange}
+                            // required
+                            className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
+                        />
+                    </div>
+
                     <div>
                         <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             City
@@ -114,7 +136,7 @@ function Signup() {
                             placeholder="Mumbai"
                             value={formData.city}
                             onChange={handleChange}
-                            required
+                            // required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>
@@ -130,7 +152,7 @@ function Signup() {
                             placeholder="India"
                             value={formData.country}
                             onChange={handleChange}
-                            required
+                            // required
                             className="mt-1 p-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 dark:text-gray-200"
                         />
                     </div>

@@ -1,9 +1,17 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser } from '../redux/Slices/userSlices';
+import axios from 'axios'; // Import Axios
+import toast from 'react-hot-toast';
 
 function OTPVerification() {
     const [otp, setOTP] = useState(['', '', '', '', '', '']);
     const [error, setError] = useState('');
     const inputRefs = useRef([]);
+    const userDetails = useSelector((state) => state.user.userDetails);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleChange = (index, value) => {
         // Only allow digits and limit to one character
@@ -26,17 +34,27 @@ function OTPVerification() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const enteredOTP = otp.join('');
+        console.log(enteredOTP);
 
-        // Replace with your actual OTP verification logic
-        if (enteredOTP === '123456') {
-            alert('OTP Verified successfully!');
-        } else {
-            setError('Invalid OTP. Please try again.');
-            setOTP(['', '', '', '', '', '']);
-            inputRefs.current[0].focus();
+        // Dispatching OTP along with user details
+        const updatedUser = {
+            ...userDetails,
+            otp: enteredOTP
+        };
+
+        try {
+            // Sending POST request to register endpoint
+            const response = await axios.post('http://localhost:5000/api/v1/auth/register', updatedUser);
+            console.log(response.data); // Log response data if needed
+            toast.success('Registration successful'); // Display success message
+            dispatch(setUser(updatedUser)); // Update Redux store with user details
+            navigate('/contacts'); // Navigate to contacts page
+        } catch (error) {
+            console.error('Registration failed:', error);
+            toast.error(error.response.data.message); // Display error message
         }
     };
 

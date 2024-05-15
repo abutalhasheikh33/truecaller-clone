@@ -38,6 +38,7 @@ function AddContact() {
 
     return (
         <>
+          
             <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
                 <div className="max-w-md w-full px-6 py-8 bg-white dark:bg-gray-800 shadow-md rounded-lg">
                     <h2 className="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-gray-100">Add Contact</h2>
