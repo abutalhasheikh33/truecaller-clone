@@ -34,9 +34,9 @@ function ContactModal({ contact, closeModal }) {
                     <div className='space-y-[14px]'>
                         <h2 className="text-2xl font-bold mb-4">{contactDetails.name}</h2>
                         <p className="text-gray-600">Phone No: {contactDetails.phoneNumber}</p>
-                        <p className="text-gray-600">Country: {contactDetails.country}</p>
-                        <p className="text-gray-600 ">City: {contactDetails.city}</p>
-                        <p className="text-gray-600 pb-6">Spam: {contactDetails.spamLikelihood}%</p>
+                        <p className="text-gray-600">Country: {contactDetails.country?contactDetails.country:"Not provided"}</p>
+                        <p className="text-gray-600 ">City: {contactDetails.city?contactDetails.city:"Not provided"}</p>
+                        <p className="text-gray-600 pb-6">Spam: {Math.floor(contactDetails.spamLikelihood)}%</p>
                         <button onClick={closeModal} className="px-4 py-2 bg-indigo-600 text-white rounded-md">
                             Close
                         </button>

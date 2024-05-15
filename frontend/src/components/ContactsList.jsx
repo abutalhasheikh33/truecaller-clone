@@ -84,12 +84,7 @@ function ContactsList() {
                                     <p className="text-gray-600 dark:text-gray-400">{contact.phoneNumber}</p>
                                 </div>
                                 <div>
-                                    <button
-                                        onClick={() => handleDelete(contact.id)}
-                                        className="px-3 py-1 mr-2 bg-red-500 text-white rounded-md"
-                                    >
-                                        Delete
-                                    </button>
+                                   
                                     <button
                                         onClick={() => handleSpam(contact.phoneNumber)}
                                         className="px-3 py-1 bg-yellow-500 text-white rounded-md"
